@@ -1,219 +1,304 @@
 # AutoHaus — Car Dealership Inventory System
 
-A full-stack car dealership inventory application built for the **TDD Kata: Car Dealership Inventory System**. It includes a FastAPI REST API, persistent SQLAlchemy database, JWT authentication, role-based administration, atomic stock deductions, and a responsive React + Tailwind CSS SPA.
+A full-stack car dealership inventory management application developed for the **TDD Kata: Car Dealership Inventory System**. AutoHaus combines a FastAPI REST API, a persistent SQLAlchemy database, JWT-based authentication, role-based access control, and a responsive React frontend styled with Tailwind CSS.
 
-> **Project status:** Source code and automated tests are included. Run the verification steps below in your own environment before claiming a test result. The unauthenticated page uses a clearly labeled preview collection; sign in to access the live database inventory. No live deployment or public repository has been created by this archive.
+The system supports vehicle management, inventory search, purchase operations, stock updates, and administrative controls, with a focus on data integrity, security, and testability.
 
 ## Features
 
-- Register and log in with email/password; passwords are hashed with bcrypt.
-- JWT bearer authentication for inventory endpoints.
-- Persistent SQLite database by default; configurable via `DATABASE_URL`.
-- Create, list, search, update, delete, purchase and restock vehicle records.
-- Admin-only create/update/delete/restock operations; regular users can view and purchase.
-- Search by make, model, category, and minimum/maximum price.
-- Validated prices and quantities; stock cannot be purchased below zero.
-- Atomic conditional stock updates reduce overselling under concurrent purchase requests.
-- Purchase history records the user, vehicle, quantity, price and timestamp.
-- Responsive React UI with filtering, sorting, login/register modal, inventory management forms and stock-aware purchase controls.
-- Pytest API tests and coverage-report configuration.
+- **Vehicle Management:** Create, view, update, and delete vehicle records.
+- **Inventory Search:** Filter vehicles by make, model, category, and price range.
+- **JWT Authentication:** Authenticate users and protect private API endpoints.
+- **Role-Based Access Control:** Restrict vehicle creation, modification, deletion, and restocking to administrators.
+- **Inventory Purchases:** Validate purchase quantities and prevent purchases exceeding available stock.
+- **Stock Management:** Restock vehicles through authorized administrative operations.
+- **Data Persistence:** Store inventory and purchase history in SQLite using SQLAlchemy.
+- **Purchase History:** Record the user, vehicle, quantity, price, and timestamp for purchases.
+- **Responsive Frontend:** React interface with search, sorting, authentication forms, and inventory controls.
+- **Automated Testing:** Pytest-based API tests with coverage reporting.
 
-## Stack
+## Technology Stack
 
-- **Backend:** Python 3.11+, FastAPI, SQLAlchemy 2, Pydantic, PyJWT, salted PBKDF2 password hashing
-- **Database:** SQLite by default (persistent file `backend/dealership.db`); PostgreSQL can be configured using a compatible SQLAlchemy URL and driver
-- **Frontend:** React, Vite, HTML5, CSS3, Tailwind CSS, Lucide icons
-- **Tests:** pytest, FastAPI TestClient, HTTPX, pytest-cov
+| Component | Technologies |
+|---|---|
+| Backend | Python, FastAPI |
+| Database | SQLite, SQLAlchemy 2 |
+| Validation | Pydantic |
+| Authentication | JWT, password hashing |
+| Frontend | React, Vite |
+| Styling | Tailwind CSS, HTML5, CSS3 |
+| Icons | Lucide |
+| Testing | pytest, FastAPI TestClient, HTTPX, pytest-cov |
 
-## Requirements
+## Project Structure
+
+```text
+car-dealership-inventory/
+├── backend/
+│   ├── app/
+│   │   └── main.py
+│   ├── tests/
+│   │   └── test_api.py
+│   ├── requirements.txt
+│   └── create_admin.py
+├── frontend/
+│   ├── src/
+│   ├── package.json
+│   └── ...
+├── screenshots/
+├── PROMPTS.md
+├── README.md
+└── TEST_REPORT.md
+```
+
+*This is a simplified overview; consult the repository for the complete file structure.*
+
+## Prerequisites
+
+Install the following before running the project:
 
 - Python 3.11 or newer
-- Node.js 20 or newer and npm
+- Node.js 20 or newer
+- npm
 - Git
 
-## Run locally
+## Installation and Setup
 
-### 1. Backend
-
-Open a terminal:
+### 1. Clone the repository
 
 ```bash
+git clone https://github.com/sankalpA1004/car-dealership-inventory.git
+cd car-dealership-inventory
+```
+
+### 2. Set up the backend
+
+Open a terminal and run:
+
+```powershell
 cd backend
 python -m venv .venv
 ```
 
-Activate the environment:
+Activate the virtual environment.
 
-- Windows PowerShell: `.venv\\Scripts\\Activate.ps1`
-- macOS/Linux: `source .venv/bin/activate`
+**Windows PowerShell:**
 
-Install dependencies and configure a secret:
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
 
-```bash
+If PowerShell blocks activation, you can run the environment's Python executable directly instead.
+
+Install the dependencies:
+
+```powershell
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Set a strong `SECRET_KEY` before running outside a local demo. For PowerShell:
+Configure a strong secret key for local development:
 
 ```powershell
 $env:SECRET_KEY = "replace-with-a-long-random-secret"
 ```
 
-For macOS/Linux:
+Start the backend:
 
-```bash
-export SECRET_KEY="replace-with-a-long-random-secret"
-```
-
-Start the API (the SQLite database/table schema is created at startup):
-
-```bash
+```powershell
 uvicorn app.main:app --reload
 ```
 
-- API base URL: `http://localhost:8000`
-- Interactive API docs: `http://localhost:8000/docs`
-- Health check: `http://localhost:8000/api/health`
+The API should now be available at:
 
-### 2. Create an administrator
+- **API base URL:** http://localhost:8000
+- **Interactive API documentation:** http://localhost:8000/docs
+- **Health check:** http://localhost:8000/api/health
 
-Public registration intentionally creates **regular users only**. In a second backend terminal, activate the same virtual environment and set credentials. Do not commit the credentials or `.env` file.
+The default database is SQLite, stored in `backend/dealership.db`.
 
-PowerShell:
+### 3. Create an administrator account
+
+Public registration creates regular user accounts. To create or promote an administrator, open another terminal and configure the administrator credentials.
+
+From the `backend` directory, with the virtual environment activated:
 
 ```powershell
 $env:ADMIN_EMAIL = "admin@example.com"
 $env:ADMIN_PASSWORD = "use-a-unique-password-at-least-12-chars"
 $env:ADMIN_NAME = "Dealership Admin"
+
 python create_admin.py
 ```
 
-macOS/Linux:
+Use your own credentials. Never commit real passwords, secret keys, or environment files to GitHub.
 
-```bash
-export ADMIN_EMAIL="admin@example.com"
-export ADMIN_PASSWORD="use-a-unique-password-at-least-12-chars"
-export ADMIN_NAME="Dealership Admin"
-python create_admin.py
-```
+Sign in through the frontend with the administrator account to access administrative controls.
 
-Log in through the frontend with this account to access admin controls. The script creates or promotes the named account and resets its password to the supplied value.
+### 4. Start the frontend
 
-### 3. Frontend
+Open a separate terminal from the project root:
 
-In a new terminal:
-
-```bash
+```powershell
 cd frontend
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`. The frontend expects the API at `http://localhost:8000` by default. To use another API origin, create `frontend/.env.local` with:
+Open the local URL printed by Vite, normally:
+
+http://localhost:5173
+
+By default, the frontend connects to the API at `http://localhost:8000`.
+
+To configure a different API address, create `frontend/.env.local`:
 
 ```env
 VITE_API_URL=http://localhost:8000
 ```
 
-The backend's `CORS_ORIGINS` environment variable accepts a comma-separated list; the default is `http://localhost:5173`.
+The backend supports a configurable `CORS_ORIGINS` environment variable for permitted frontend origins.
 
-### 4. Run tests and generate a test report
+## API Reference
 
-From the backend directory, with dependencies installed:
+Protected vehicle endpoints require a JWT bearer token:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| POST | `/api/auth/register` | Public | Register a regular user |
+| POST | `/api/auth/login` | Public | Authenticate and receive a JWT |
+| GET | `/api/vehicles` | Authenticated | List vehicles |
+| GET | `/api/vehicles/search` | Authenticated | Search and filter vehicles |
+| POST | `/api/vehicles` | Admin | Create a vehicle |
+| PUT | `/api/vehicles/{id}` | Admin | Update a vehicle |
+| DELETE | `/api/vehicles/{id}` | Admin | Delete a vehicle |
+| POST | `/api/vehicles/{id}/purchase` | Authenticated | Purchase vehicles and reduce stock |
+| POST | `/api/vehicles/{id}/restock` | Admin | Increase available stock |
+| GET | `/api/health` | Public | Check API availability |
+
+### Example: List vehicles
+
+After logging in, use the returned access token:
 
 ```bash
+curl http://localhost:8000/api/vehicles \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+### Search parameters
+
+The search endpoint supports the following filters:
+
+- `make`
+- `model`
+- `category`
+- `min_price`
+- `max_price`
+
+Example:
+
+```text
+GET /api/vehicles/search?make=Toyota&min_price=5000&max_price=30000
+```
+
+### Inventory validation
+
+- Prices must be nonnegative.
+- Stock quantities must be nonnegative.
+- Purchase quantities must be at least one.
+- Purchases exceeding available stock are rejected.
+- Unauthenticated requests to protected endpoints return HTTP `401`.
+- Authenticated users without the required administrative privileges receive HTTP `403`.
+- Insufficient stock returns HTTP `409`.
+
+## Testing
+
+The backend tests are located in `backend/tests/test_api.py`.
+
+From the backend directory, with dependencies installed, run:
+
+```powershell
 pytest
 ```
 
-This runs the API tests and produces a terminal coverage summary plus `htmlcov/index.html`. To save a text test report:
+To generate a JUnit XML test report:
 
-```bash
+```powershell
 pytest --junitxml=test-report.xml
 ```
 
-Commit the actual report generated on your machine if required by your evaluator. Do not manually change test counts or claim tests passed without running them.
+The project includes pytest coverage configuration. The test run can also produce an HTML coverage report at `htmlcov/index.html`, depending on the configured test command.
 
-## API reference
+To build the frontend, open a terminal in `frontend`:
 
-All `/api/vehicles` endpoints require `Authorization: Bearer <access_token>`.
-
-| Method | Endpoint | Access | Purpose |
-|---|---|---|---|
-| POST | `/api/auth/register` | Public | Create a regular user account |
-| POST | `/api/auth/login` | Public | Authenticate and receive JWT |
-| GET | `/api/vehicles` | Authenticated | List inventory |
-| GET | `/api/vehicles/search?make=...&model=...&category=...&min_price=...&max_price=...` | Authenticated | Filter inventory |
-| POST | `/api/vehicles` | Admin | Create vehicle |
-| PUT | `/api/vehicles/{id}` | Admin | Update vehicle fields |
-| DELETE | `/api/vehicles/{id}` | Admin | Delete vehicle |
-| POST | `/api/vehicles/{id}/purchase` | Authenticated | Decrease stock; body `{"quantity": 1}` |
-| POST | `/api/vehicles/{id}/restock` | Admin | Increase stock; body `{"quantity": 5}` |
-| GET | `/api/health` | Public | Health check |
-
-A vehicle has a database-generated unique ID, make, model, category, price, quantity, description and optional image URL. Prices must be nonnegative; quantities must be nonnegative. Purchase quantity must be at least one. Insufficient stock returns HTTP `409`; unauthenticated requests return `401`; authenticated non-admin attempts at admin-only actions return `403`.
-
-### Example requests
-
-Register:
-
-```bash
-curl -X POST http://localhost:8000/api/auth/register \\
-  -H 'Content-Type: application/json' \\
-  -d '{"email":"customer@example.com","full_name":"Sample Customer","password":"secure-password-123"}'
+```powershell
+npm run build
 ```
 
-After logging in, use the returned `access_token` as a bearer token:
+Test coverage and pass/fail results should be recorded from actual executions. Do not treat a successful frontend launch as proof that every backend feature or security requirement has passed testing.
 
-```bash
-curl http://localhost:8000/api/vehicles \\
-  -H 'Authorization: Bearer YOUR_ACCESS_TOKEN'
-```
+## Test-Driven Development
 
-## TDD approach
+The project follows the Red-Green-Refactor approach:
 
-The tests in `backend/tests/test_api.py` cover registration, duplicate accounts, invalid login, protected routes, role restrictions, vehicle creation and search, invalid prices, purchasing, insufficient stock, restocking, updating, deleting and invalid price ranges. The intended Red–Green–Refactor workflow is:
+1. **Red:** Write a test for the expected behavior and confirm that it fails for the intended reason.
+2. **Green:** Implement the smallest change needed to make the test pass.
+3. **Refactor:** Improve the code while preserving the passing behavior.
+4. **Verify:** Rerun the relevant tests and commit meaningful changes.
 
-1. Add a test for one behavior and run it to observe a meaningful failure (Red).
-2. Implement the minimum behavior needed to pass (Green).
-3. Refactor without changing behavior; rerun the tests (Refactor).
-4. Commit each meaningful stage with a descriptive message.
+Important test scenarios include authentication, duplicate registration, protected endpoints, role restrictions, vehicle creation and search, invalid prices, purchases, insufficient stock, restocking, updating, and deletion.
 
-**Important:** this archive does not fabricate an earlier commit history. If demonstrating TDD is part of the evaluation, make incremental commits while developing and keep the real test output for each stage.
+## Security Considerations
 
-## Security and production notes
+- Passwords are stored as hashes rather than plaintext.
+- JWTs protect authenticated API operations.
+- Administrative permissions are enforced on the backend.
+- Input validation helps prevent invalid vehicle and stock data.
+- Conditional stock updates help reduce overselling during concurrent purchases.
+- Secrets and administrator credentials must be configured outside source control.
+- Production deployments should use HTTPS and appropriately restricted CORS settings.
 
-- Change `SECRET_KEY` to a strong random value before deployment; never deploy with the development fallback.
-- Configure `CORS_ORIGINS` narrowly for the deployed frontend.
-- The admin bootstrap script is a local operator tool; do not expose it as an API route.
-- Use HTTPS in production, rate-limit authentication endpoints, and consider refresh-token/revocation strategy for a production system.
-- SQLite is suitable for local evaluation. For multi-instance production deployments, use PostgreSQL and add database migration management (e.g. Alembic).
-- Purchase quantity updates are conditional SQL updates. Consider explicit transaction isolation and a production database when scaling.
-- Demo preview data is frontend-only and is not persisted; it is replaced with database inventory after login and successful API retrieval.
+For production use, additional measures may include authentication rate limiting, token revocation or refresh-token management, database migrations, and a production-grade database configuration.
 
 ## Screenshots
 
-Add real screenshots from your running application to `screenshots/` and embed them here before submission. Suggested captures:
+Add screenshots captured from the running application to the `screenshots/` directory.
 
-1. `screenshots/homepage.png` — hero and collection grid.
-2. `screenshots/search-filters.png` — search and filters applied.
-3. `screenshots/login.png` — login/register modal.
-4. `screenshots/admin-inventory.png` — admin view with add/edit/delete controls.
-5. `screenshots/api-docs.png` — FastAPI `/docs` page.
-6. `screenshots/test-report.png` — actual pytest terminal or HTML coverage report.
+Recommended screenshots:
 
-No screenshots are included yet because the application has not been launched in a browser in this environment. Do not use mock screenshots as evidence of a real run.
+1. Main inventory dashboard.
+2. Search and filter results.
+3. Login or registration interface.
+4. Administrator inventory controls.
+5. FastAPI interactive documentation.
+6. Actual automated test output.
 
-## My AI Usage
+Once the images exist in the repository, embed them here using relative paths. Do not use mock images as evidence of a real application run.
 
-AI assistance was used in this project-building conversation to help plan the architecture and generate an initial implementation scaffold, including backend API structure, SQLAlchemy models, Pydantic schemas, security helpers, frontend components and styling, test cases, and documentation. The generated code should be reviewed and tested by the project author before submission.
+## AI Usage
 
-The project author should update this section before submitting with the actual tools used, the exact tasks for which each tool was used, what they manually changed, the bugs they found, and what they learned. Do not claim that AI-generated code was independently written or verified if it was not. Be prepared to explain JWT authentication, password hashing, role checks, database transactions, the test suite and the UI implementation.
+ChatGPT assisted with selected development activities, including architecture planning, initial code scaffolding, API and database design, authentication components, frontend structure, test ideas, debugging guidance, and documentation.
 
-## PROMPTS.md and AI transparency
+AI-generated suggestions require review and validation. The project author is responsible for understanding the implementation, testing application behavior, reviewing security controls, and ensuring that documented results accurately reflect the current code.
 
-See the root `PROMPTS.md`. It records the assignment prompt and the instruction to build the project, but it is **not a complete export of the entire chat transcript**. Attach the raw, unedited chat export or a real public chat link there before final submission, as required by the assignment. Do not invent a public URL.
+The root `PROMPTS.md` file contains a curated collection of development prompts related to the project. It should not be interpreted as a verbatim historical transcript unless an actual conversation export or transcript is included.
+
+## Known Limitations and Future Improvements
+
+Potential areas for further development include:
+
+- Add database migrations using Alembic.
+- Add rate limiting for authentication endpoints.
+- Improve automated test coverage for edge cases and concurrent operations.
+- Capture screenshots and document verified test results.
+- Configure PostgreSQL and production deployment settings if required.
+
+These items should be treated as future work unless already implemented and verified.
 
 ## License
 
-For educational/kata use. Add a license if you intend to distribute the project publicly.
+Developed for educational purposes as part of the Car Dealership Inventory System TDD Kata. Add an explicit open-source license if you intend to distribute the project under specific reuse terms.
