@@ -1,140 +1,127 @@
-# Raw AI prompts and conversation log
+# AI-Assisted Development Log — Car Dealership Inventory System
 
-## User prompt 1 (verbatim assignment supplied in chat)
+## 1. Architecture and Technology Selection
 
-TDD Kata: Car Dealership Inventory System 
+**Prompt 1 — Define a maintainable architecture**
 
-Objective 
+I want to build a Car Dealership Inventory System with a clear separation of concerns. I am considering FastAPI for the REST API, SQLAlchemy for persistence, SQLite for local development, and React with Tailwind CSS for the frontend. Propose a minimal architecture that is easy to test and maintain. Explain the responsibilities of each layer, how data flows from the UI to the database, and which abstractions are worth introducing at this project's scale. Avoid unnecessary microservices and overengineering.
 
-The goal of this kata is to design, build, and test a full-stack Car Dealership Inventory System. This project will test your skills in API development, database management, frontend implementation, testing, and modern development workflows, including the use of AI tools. 
+## 2. Database Design and Data Integrity
 
-Core Requirements 
+**Prompt 2 — Model the inventory domain**
 
-1. Backend API (RESTful) 
+Design a relational data model for a vehicle inventory system. Identify the essential vehicle attributes, data types, uniqueness constraints, and validation rules. Consider how price, model year, and available quantity should be represented. Explain which integrity rules belong in the database and which belong in application-level validation. Keep the model extensible without introducing speculative features.
 
-You are to build a robust backend API that will serve as the brain of the application. 
+**Prompt 3 — Design API schemas independently of database models**
 
-Technology: Choose one of the following: Node.js/TypeScript (with Express/NestJS), Python (with Django/FastAPI), or Ruby (with Rails). 
+Help me define Pydantic schemas for creating, updating, and returning vehicle records. The API should accept only intended client-editable fields and should not expose internal database details unnecessarily. Explain how partial updates should behave, how invalid values should be rejected, and how the schemas should remain consistent with the SQLAlchemy models.
 
-Database: The application must connect to a database (e.g., PostgreSQL, MongoDB, SQLite). An in-memory database is not sufficient. 
+## 3. REST API Design
 
-User Authentication: 
+**Prompt 4 — Establish consistent endpoint semantics**
 
-Users must be able to register and log in. 
+Review the REST API design for vehicle creation, listing, retrieval, updating, and deletion. Recommend appropriate HTTP methods, status codes, validation behavior, and error response conventions. Account for nonexistent resources and malformed requests. Keep the API predictable for frontend developers and avoid returning successful responses when an operation has failed.
 
-Implement token-based authentication (e.g., JWT) to secure certain API endpoints. 
+**Prompt 5 — Implement vehicle CRUD operations**
 
-API Endpoints: 
+Help implement the vehicle CRUD endpoints using FastAPI and SQLAlchemy. Keep request validation, database persistence, and HTTP response handling clearly separated. Ensure that failed database operations do not leave inconsistent state. Explain the important implementation decisions and provide focused tests for successful operations and common failure cases.
 
-Auth: POST /api/auth/register, POST /api/auth/login 
+**Prompt 6 — Add efficient search and filtering**
 
-Vehicles (Protected): 
+Design a search interface for the vehicle listing endpoint that supports filtering by relevant attributes such as make, model, year, and stock availability. Multiple filters should combine predictably, and user-provided values must be handled safely through ORM queries. Consider empty results, invalid filter values, and pagination if justified by the current requirements.
 
-POST /api/vehicles: Add a new vehicle. 
+## 4. Authentication and Authorization
 
-GET /api/vehicles: View a list of all available vehicles. 
+**Prompt 7 — Implement secure authentication**
 
-GET /api/vehicles/search: Search for vehicles by make, model, category, or price range. 
+Help implement authentication in FastAPI using password hashing and JWT access tokens. Passwords must never be stored in plaintext, signing secrets must come from environment variables, and token validation should be centralized in a reusable dependency. Explain the authentication flow, relevant token claims, expiration handling, and expected behavior for missing or invalid credentials.
 
-PUT /api/vehicles/:id: Update a vehicle's details. 
+**Prompt 8 — Enforce role-based access control**
 
-DELETE /api/vehicles/:id: Delete a vehicle (Admin only). 
+The system has regular users and administrators. Define a reusable authorization mechanism so that administrative operations cannot be accessed by ordinary users. Enforce permissions on the backend, not just through frontend visibility. Apply the policy consistently to protected endpoints and write negative tests demonstrating that unauthorized requests are rejected.
 
-Inventory (Protected): 
+**Prompt 9 — Review authentication failure modes**
 
-POST /api/vehicles/:id/purchase: Purchase a vehicle, decreasing its quantity. 
+Review the login and authorization flows for common failure modes, including incorrect credentials, malformed tokens, expired tokens, missing authorization headers, and insufficient privileges. Explain the expected HTTP response for each case and identify tests that distinguish authentication failures from authorization failures. Avoid exposing sensitive implementation details in error messages.
 
-POST /api/vehicles/:id/restock: Restock a vehicle, increasing its quantity (Admin only). 
+## 5. Inventory Business Logic
 
-Each vehicle must have a unique ID, make, model, category, price, and quantity in stock. 
+**Prompt 10 — Make purchase operations safe**
 
-2. Frontend Application 
+Implement the vehicle purchase operation with explicit business rules. Reject zero or negative quantities and purchases that exceed available stock. Ensure that stock cannot become negative and that the database update remains consistent if an operation fails. Consider transaction boundaries and concurrent requests, and explain which protections are appropriate for SQLite and this project's expected scale.
 
-You must build a modern, single-page application (SPA) to interact with your backend API. 
+**Prompt 11 — Restrict and validate restocking**
 
-Technology: You must use HTML5, CSS3, Tailwind, and React 
+Design an administrative restock operation that validates the requested quantity and updates inventory safely. Unauthorized users must be denied access, and invalid requests must not modify the database. Add tests for successful restocking, invalid quantities, nonexistent vehicles, and insufficient permissions.
 
-Functionality: 
+**Prompt 12 — Protect destructive operations**
 
-User registration and login forms. 
+Review the vehicle deletion workflow. Ensure that deletion is restricted to authorized administrators, that nonexistent records are handled correctly, and that database failures are not reported as successful deletions. Identify any data-integrity implications of deleting vehicles that may have existing inventory or transaction references.
 
-A dashboard or homepage to display all available vehicles. 
+## 6. Test-Driven Development
 
-Functionality to search and filter vehicles. 
+**Prompt 13 — Apply Red-Green-Refactor to a specific requirement**
 
-A "Purchase" button on each vehicle, which should be disabled if the quantity is zero. 
+Use a test-driven workflow to implement one inventory business rule. Begin by writing a focused test that describes the expected behavior, then run it and confirm that it fails for the intended reason. Implement the smallest change that makes the test pass, rerun the relevant tests, and refactor without changing behavior. Keep each stage independently reviewable so the Git history reflects genuine development progress.
 
-(For Admin Users) Forms/UI to add, update, and delete vehicles. 
+**Prompt 14 — Build isolated API tests**
 
-Design: This is a chance to show your creativity. The application should be visually appealing, responsive, and provide a great user experience. 
+Help structure pytest tests for the FastAPI application using a separate test database and reusable fixtures. Tests should be deterministic, should not modify development data, and should cover both successful requests and failure conditions. Explain how to override application dependencies for testing and how to ensure test data is cleaned up reliably.
 
-Process & Technical Guidelines 
+**Prompt 15 — Test security boundaries**
 
-1. Test-Driven Development (TDD) 
+Create a focused test matrix for authentication and role-based permissions. Include unauthenticated requests, authenticated regular users attempting administrative actions, authorized administrators, and invalid credentials. Verify status codes and relevant state changes, not merely that requests return a response. Identify any gaps in the current tests before proposing additional implementation.
 
-Write tests before implementing functionality. We expect to see a clear "Red-Green-Refactor" pattern in your commit history, especially for the backend logic. Aim for high test coverage with meaningful test cases. 
+**Prompt 16 — Use coverage to guide testing**
 
-2. Clean Coding Practices 
+Help me interpret the actual pytest and coverage output from this repository. Identify important untested branches in authentication, validation, and inventory operations. Prioritize tests by risk and business impact instead of chasing a coverage percentage alone. Do not invent results or claim that a test passed without execution evidence.
 
-Write clean, readable, and maintainable code. Follow SOLID principles and other best practices in software design. Your code should be well-documented with meaningful comments and clear naming conventions. 
+## 7. React Frontend
 
-3. Git & Version Control 
+**Prompt 17 — Structure the frontend around user workflows**
 
-Use Git for version control. Commit your changes frequently with clear, descriptive messages that narrate your development journey. 
+Design a maintainable React interface for browsing and managing dealership inventory. Include authentication, vehicle listing, search and filtering, and forms for permitted inventory operations. Use reusable components where they provide real value, and define clear loading, empty, validation, and error states. Keep the UI aligned with the existing API contract.
 
-4. AI Usage Policy (Important) 
+**Prompt 18 — Integrate the frontend with the API**
 
-We believe AI is a critical tool in the modern software development lifecycle. You are encouraged and expected to use AI tools. However, you must be transparent about it. 
+Help organize API calls in a reusable frontend service layer. Connect login, vehicle listing, search, and inventory operations to the FastAPI endpoints. Handle network failures and unsuccessful HTTP responses explicitly. Keep configuration environment-based, avoid hardcoded secrets, and ensure the UI refreshes or updates state after successful mutations.
 
-AI Co-authorship: For every commit where you used an AI tool (for generating boilerplate, writing tests, debugging, etc.), you must add the AI as a co-author. 
+**Prompt 19 — Improve usability and responsive behavior**
 
-How to add a co-author: At the end of your commit message, add two empty lines, followed by the co-author trailer. 
+Review the inventory interface for usability, accessibility, and responsive layout. Improve semantic HTML, form labels, keyboard navigation, validation feedback, spacing, and mobile behavior using Tailwind CSS. Preserve existing business logic and API behavior. Explain which changes improve accessibility and which are purely visual.
 
-git commit -m "feat: Implement user registration endpoint 
- 
-Used an AI assistant to generate the initial boilerplate for the 
-controller and service, then manually added validation logic. 
- 
-Co-authored-by: AI Tool Name <AI@users.noreply.github.com>" 
+## 8. Debugging and Security Review
 
-README Documentation: Your README.md file must include a detailed section titled "My AI Usage". In this section, you must describe: 
+**Prompt 20 — Diagnose errors from evidence**
 
-Which AI tools you used (e.g., GitHub Copilot, ChatGPT, Gemini, etc.). 
+When the application fails locally, analyze the exact traceback, terminal output, relevant source code, and configuration I provide. Distinguish environment problems from application bugs, identify the most likely root cause, and recommend the smallest safe fix. After the change, specify the command or test that should verify the diagnosis rather than assuming the issue is resolved.
 
-How you used them (e.g., "I used Gemini to brainstorm API endpoint structures," or "I asked Copilot to generate unit tests for my service layer"). 
+**Prompt 21 — Perform a focused application security review**
 
-Your reflection on how AI impacted your workflow. 
+Review the current implementation for common web application risks, focusing on password storage, JWT handling, authorization checks, input validation, database operations, secret management, and exception handling. For each credible finding, describe the potential impact, provide a reproducible verification approach, and recommend a proportionate remediation. Clearly distinguish confirmed vulnerabilities from issues that still require testing.
 
-Interview Discussion: Be prepared to discuss your AI usage in detail during the interview. We are interested in how you leverage these tools effectively and responsibly. 
+## 9. Documentation and Delivery
 
-Deliverables 
+**Prompt 22 — Write reproducible setup documentation**
 
-A public Git repository link (e.g., on GitHub, GitLab). 
+Help prepare a README that allows another developer to run the project from a clean checkout. Document prerequisites, environment configuration, backend setup, frontend setup, test commands, API documentation, key features, screenshots, and known limitations. Verify every command against the actual folder structure and avoid documenting unimplemented features as completed.
 
-A comprehensive README.md file that includes: 
+**Prompt 23 — Document AI assistance accurately**
 
-A clear explanation of the project. 
+Help organize a concise AI usage disclosure describing the assistance used during development, such as architecture discussion, code scaffolding, debugging guidance, test design, and documentation. Distinguish generated suggestions from changes reviewed or tested by the project author. Keep the disclosure specific and accurate rather than using generic claims about productivity.
 
-Detailed instructions on how to set up and run the project locally (both backend and frontend). 
+**Prompt 24 — Conduct a release-readiness review**
 
-Screenshots of your final application in action. 
-
-The mandatory "My AI Usage" section. 
-
-A test report showing the results of your test suite. 
-
-A root PROMPTS.md containing your raw, unedited AI chat logs or public chat links (no AI-generated summaries). 
-
-(Optional - Brownie Points) A link to the deployed, live application on a platform like Vercel, Netlify, Heroku, or AWS. 
-
-Note: Plagiarism is strictly forbidden. While we encourage AI assistance, submitting code copied from other repositories or developers will result in immediate rejection. We want to see your work, augmented by modern tools.
-
-## User prompt 2 (verbatim)
-
-you make it
+Compare the implementation against the assignment requirements. Evaluate API behavior, persistence, authentication, authorization, stock validation, frontend integration, automated tests, documentation, screenshots, and Git history. Produce a checklist that separates verified requirements from unverified ones and identifies the highest-priority remaining work. Base conclusions on repository contents and actual test output, not assumptions.
 
 ---
 
-## Transcript requirement reminder
+## Development Principles
 
-This file currently contains the user's raw prompts from this interaction, not a full raw transcript of all assistant and tool messages. The assignment explicitly asks for raw, unedited AI chat logs or a public chat link. Before submission, append/export the full conversation exactly as provided by the chat product, or add a genuine public share URL. No public link has been created by this project scaffold.
+- Prefer small, reviewable changes over large rewrites.
+- Validate behavior through tests and observable API responses.
+- Enforce security-sensitive rules on the backend.
+- Keep configuration and secrets out of source control.
+- Use Red-Green-Refactor where it can be followed genuinely.
+- Treat AI-generated suggestions as proposals that require review.
+- Record test results and implementation claims only when supported by evidence.
