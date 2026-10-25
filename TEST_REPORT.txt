@@ -1,0 +1,17 @@
+.............                                                            [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.13.5-final-0 ________________
+
+Name              Stmts   Miss  Cover   Missing
+-----------------------------------------------
+app/__init__.py       0      0   100%
+app/database.py      14      4    71%   15-19
+app/main.py         105      4    96%   28, 35, 38, 64
+app/models.py        34      0   100%
+app/schemas.py       47      1    98%   31
+app/security.py      35      5    86%   23, 28-29, 40-41
+-----------------------------------------------
+TOTAL               235     14    94%
+Coverage HTML written to dir htmlcov
+13 passed in 2.69s
+<sys>:0: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7effd2c6ba60>
